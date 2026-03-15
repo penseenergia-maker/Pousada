@@ -2,25 +2,28 @@ from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-# Lista de quartos
 quartos = {
-    "Rosa": "Livre",
-    "Vermelho": "Livre",
-    "Amarelo": "Livre",
-    "Azul": "Livre",
-    "Verde": "Livre",
-    "Laranja": "Livre"
+    "Rosa": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""},
+    "Vermelho": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""},
+    "Amarelo": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""},
+    "Azul": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""},
+    "Verde": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""},
+    "Laranja": {"status": "Livre", "hospede": "", "entrada": "", "saida": ""}
 }
 
 html = """
+
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <title>Pousada</title>
 
 <style>
+
 body{
-font-family: Arial;
+font-family:Arial;
 background:#f4f4f4;
 text-align:center;
 }
@@ -36,20 +39,25 @@ padding:20px;
 padding:20px;
 border-radius:10px;
 color:white;
-font-size:20px;
+font-size:18px;
 }
 
-.Livre{background:#2ecc71;}
-.Ocupado{background:#e74c3c;}
-.Limpeza{background:#f1c40f;color:black;}
+.Livre{background:green;}
+.Ocupado{background:red;}
+.Limpeza{background:orange;color:black;}
+
+input{
+width:90%;
+margin:3px;
+}
 
 button{
 margin:5px;
-padding:8px 12px;
+padding:6px;
 border:none;
-border-radius:6px;
-cursor:pointer;
+border-radius:5px;
 }
+
 </style>
 
 </head>
@@ -60,17 +68,39 @@ cursor:pointer;
 
 <div class="grid">
 
-{% for quarto, status in quartos.items() %}
+{% for quarto, dados in quartos.items() %}
 
-<div class="card {{status}}">
-<b>{{quarto}}</b><br><br>
+<div class="card {{dados.status}}">
 
-Status: {{status}}
+<b>{{quarto}}</b>
 
-<form method="post">
-<input type="hidden" name="quarto" value="{{quarto}}">
+<br>
+
+Status: {{dados.status}}
 
 <br><br>
+
+Hóspede: {{dados.hospede}}
+
+<br>
+
+Entrada: {{dados.entrada}}
+
+<br>
+
+Saída: {{dados.saida}}
+
+<form method="post">
+
+<input type="hidden" name="quarto" value="{{quarto}}">
+
+<input name="hospede" placeholder="Nome do hóspede">
+
+<input name="entrada" placeholder="Data entrada">
+
+<input name="saida" placeholder="Data saída">
+
+<br>
 
 <button name="acao" value="Ocupado">Check-in</button>
 
@@ -87,17 +117,25 @@ Status: {{status}}
 </div>
 
 </body>
+
 </html>
+
 """
 
 @app.route("/", methods=["GET","POST"])
 def index():
+
     if request.method == "POST":
+
         quarto = request.form["quarto"]
         acao = request.form["acao"]
-        quartos[quarto] = acao
+
+        quartos[quarto]["status"] = acao
+
+        quartos[quarto]["hospede"] = request.form["hospede"]
+        quartos[quarto]["entrada"] = request.form["entrada"]
+        quartos[quarto]["saida"] = request.form["saida"]
 
     return render_template_string(html, quartos=quartos)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=81)
+app.run(host="0.0.0.0", port=81)
